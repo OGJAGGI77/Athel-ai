@@ -41,7 +41,7 @@ class handler(BaseHTTPRequestHandler):
             URL,
             data=json.dumps({"query": query}).encode(),
             headers={
-                header: prefix + key,
+                header: prefix + key.strip(),
                 "Content-Type": "application/json",
                 "Accept": "application/json",
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
@@ -62,6 +62,7 @@ class handler(BaseHTTPRequestHandler):
             return self._send(502, {"error": msg})
         except (socket.timeout, TimeoutError):
             return self._send(504, {"error": "You.com took too long to answer. Ask again."})
-    except Exception as err:
-       return self._send(502, {"error": f"Connection error: {type(err).__name__} - {str(err)}"})
+        except Exception as err:
+            return self._send(502, {"error": f"Connection error: {type(err).__name__} - {str(err)}"})
+
         return self._send(200, {"answer": data.get("answer", "")})
