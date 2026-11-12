@@ -30,18 +30,15 @@ class handler(BaseHTTPRequestHandler):
         if len(query) > 400:
             return self._send(400, {"error": "Keep the question under 400 characters."})
 
-        key = os.environ.get("YDC_API_KEY")
+        key = os.environ.get("YDC_API_KEY", "").strip()
         if not key:
             return self._send(500, {"error": "YDC_API_KEY is not set in Vercel settings."})
-
-        header = os.environ.get("YDC_AUTH_HEADER", "X-API-Key")
-        prefix = os.environ.get("YDC_AUTH_PREFIX", "")
 
         req = urllib.request.Request(
             URL,
             data=json.dumps({"query": query}).encode(),
             headers={
-                header: prefix + key.strip(),
+                "X-API-Key": key,
                 "Content-Type": "application/json",
                 "Accept": "application/json",
                 "User-Agent": "AthelAI/1.0",
