@@ -1,0 +1,1493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F6F2">
+<title>ATHEL AI — Editorial Search & Inquiry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-ivory: #F7F6F2;
+  --bg-beige: #EAE7DF;
+  --bg-card: #EFECE6;
+  --ink-charcoal: #20211F;
+  --ink-secondary: #4A4945;
+  --ink-stone: #85847E;
+  --accent-terracotta: #B85D3B;
+  --accent-olive: #4E5649;
+  --rule-light: rgba(32, 33, 31, 0.11);
+  --rule-strong: rgba(32, 33, 31, 0.24);
+  --err-crimson: #9E3328;
+  --err-bg: #F3E9E6;
+
+  --font-sans: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--bg-ivory);
+  color: var(--ink-charcoal);
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-ivory);
+  color: var(--ink-charcoal);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  selection-background-color: var(--bg-beige);
+}
+
+::selection {
+  background: var(--bg-beige);
+  color: var(--ink-charcoal);
+}
+
+/* Subtle architectural grid container */
+.page-shell {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 48px);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header / Masthead */
+header.masthead {
+  padding-top: calc(clamp(20px, 3.5vh, 36px) + env(safe-area-inset-top));
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--rule-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  animation: fadeDown 0.7s var(--ease-out-expo) both;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--ink-charcoal);
+}
+
+.brand-mark {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--accent-terracotta);
+  display: inline-block;
+  transform: translateY(-1px);
+}
+
+.brand-sub {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-stone);
+  font-weight: 400;
+}
+
+.masthead-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-stone);
+  font-weight: 500;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--accent-olive);
+}
+
+/* Hero Section */
+main.hero {
+  padding-top: clamp(44px, 9vh, 96px);
+  padding-bottom: clamp(32px, 6vh, 64px);
+  transition: padding 0.5s var(--ease-out-expo);
+}
+
+body.has-answer main.hero {
+  padding-top: clamp(28px, 4.5vh, 52px);
+  padding-bottom: clamp(20px, 3vh, 36px);
+}
+
+.editorial-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-stone);
+  margin-bottom: 16px;
+  animation: fadeUp 0.7s var(--ease-out-expo) 0.05s both;
+}
+
+.editorial-kicker::before {
+  content: "";
+  width: 24px;
+  height: 1px;
+  background-color: var(--accent-terracotta);
+}
+
+.hero-headline {
+  margin: 0 0 12px;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(34px, 5.6vw, 60px);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  color: var(--ink-charcoal);
+  animation: fadeUp 0.75s var(--ease-out-expo) 0.1s both;
+}
+
+.hero-headline em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink-secondary);
+}
+
+.hero-subtext {
+  margin: 0 0 clamp(32px, 5vh, 48px);
+  font-family: var(--font-sans);
+  font-size: clamp(16px, 2vw, 18px);
+  line-height: 1.5;
+  color: var(--ink-stone);
+  font-weight: 400;
+  max-width: 52ch;
+  animation: fadeUp 0.8s var(--ease-out-expo) 0.15s both;
+}
+
+/* Question Form & Editorial Input Surface */
+.inquiry-form {
+  position: relative;
+  background-color: var(--bg-beige);
+  border: 1px solid var(--rule-light);
+  border-radius: 16px;
+  padding: clamp(20px, 3.5vw, 32px);
+  transition: background-color 0.35s var(--ease-in-out),
+              border-color 0.35s var(--ease-in-out),
+              box-shadow 0.35s var(--ease-in-out),
+              transform 0.35s var(--ease-out-expo);
+  animation: fadeUp 0.85s var(--ease-out-expo) 0.2s both;
+}
+
+.inquiry-form::after {
+  content: "";
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: -1px;
+  height: 2px;
+  background-color: var(--accent-terracotta);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.45s var(--ease-out-expo);
+}
+
+.inquiry-form:focus-within {
+  background-color: #FAF9F5;
+  border-color: var(--rule-strong);
+  box-shadow: 0 20px 48px -24px rgba(32, 33, 31, 0.12);
+}
+
+.inquiry-form:focus-within::after {
+  transform: scaleX(1);
+}
+
+.input-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-stone);
+  font-weight: 500;
+}
+
+.input-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.clear-btn {
+  background: transparent;
+  border: 0;
+  padding: 2px 6px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--ink-stone);
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.clear-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.clear-btn:hover {
+  color: var(--ink-charcoal);
+  background-color: var(--bg-beige);
+}
+
+textarea#q {
+  display: block;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
+  color: var(--ink-charcoal);
+  caret-color: var(--accent-terracotta);
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(22px, 3.6vw, 34px);
+  line-height: 1.32;
+  letter-spacing: -0.015em;
+  padding: 0;
+  min-height: 2.64em;
+}
+
+textarea#q::placeholder {
+  color: var(--ink-stone);
+  opacity: 0.6;
+  font-style: italic;
+  transition: opacity 0.25s ease;
+}
+
+textarea#q:focus::placeholder {
+  opacity: 0.38;
+}
+
+.form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule-light);
+}
+
+.keyboard-hint {
+  font-size: 13px;
+  color: var(--ink-stone);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kbd {
+  display: inline-block;
+  padding: 2px 7px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-secondary);
+  background-color: var(--bg-ivory);
+  border: 1px solid var(--rule-light);
+  border-radius: 4px;
+}
+
+#go {
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid var(--ink-charcoal);
+  cursor: pointer;
+  background-color: var(--ink-charcoal);
+  color: var(--bg-ivory);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.2s var(--ease-out-expo),
+              background-color 0.25s ease,
+              border-color 0.25s ease,
+              opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+#go:hover:not(:disabled) {
+  background-color: var(--accent-terracotta);
+  border-color: var(--accent-terracotta);
+}
+
+#go:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+#go:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+#go svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.25s var(--ease-out-expo);
+}
+
+#go:hover:not(:disabled) svg {
+  transform: translate(2px, -2px);
+}
+
+/* Suggested Questions — Editorial Index Style */
+.suggestions-wrap {
+  margin-top: clamp(28px, 4.5vh, 44px);
+  animation: fadeUp 0.9s var(--ease-out-expo) 0.28s both;
+  transition: opacity 0.3s ease;
+}
+
+.suggestions-wrap[hidden] {
+  display: none !important;
+}
+
+.suggestions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-stone);
+}
+
+.hints {
+  display: grid;
+  grid-template-columns: 1fr;
+  border-top: 1px solid var(--rule-light);
+}
+
+.hints button {
+  appearance: none;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule-light);
+  padding: 16px 8px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: var(--font-serif);
+  font-size: clamp(17px, 2.2vw, 20px);
+  line-height: 1.35;
+  color: var(--ink-charcoal);
+  transition: padding-left 0.3s var(--ease-out-expo),
+              background-color 0.25s ease,
+              color 0.25s ease;
+}
+
+.hints button::before {
+  content: attr(data-index);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-stone);
+  margin-right: 14px;
+  flex-shrink: 0;
+  transition: color 0.25s ease;
+}
+
+.hints button::after {
+  content: "↗";
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--ink-stone);
+  margin-left: auto;
+  opacity: 0.45;
+  transition: transform 0.25s var(--ease-out-expo), opacity 0.25s ease, color 0.25s ease;
+}
+
+.hints button:hover {
+  padding-left: 16px;
+  background-color: rgba(234, 231, 223, 0.55);
+}
+
+.hints button:hover::before,
+.hints button:hover::after {
+  color: var(--accent-terracotta);
+  opacity: 1;
+}
+
+.hints button:hover::after {
+  transform: translate(2px, -2px);
+}
+
+.hints button:active {
+  background-color: var(--bg-beige);
+}
+
+/* Focus states */
+button:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent-terracotta);
+  outline-offset: 3px;
+}
+
+.inquiry-form textarea:focus-visible {
+  outline: none;
+}
+
+/* Answer Section — Editorial Publication Layout */
+#sheet {
+  margin-top: 8px;
+  padding-top: clamp(28px, 5vh, 48px);
+  padding-bottom: calc(clamp(56px, 9vh, 96px) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--ink-charcoal);
+}
+
+#sheet[hidden] {
+  display: none !important;
+}
+
+#sheet.rise {
+  animation: rise 0.55s var(--ease-out-expo) both;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(28px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.sheet-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+
+@media (min-width: 768px) {
+  .sheet-grid {
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 48px;
+  }
+}
+
+.sheet-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dispatch-meta {
+  border-bottom: 1px solid var(--rule-light);
+  padding-bottom: 14px;
+}
+
+.dispatch-tag {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent-terracotta);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dispatch-stats {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-stone);
+  line-height: 1.5;
+}
+
+.asked-echo {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+  margin: 0;
+}
+
+/* Main Editorial Body */
+.sheet-content {
+  min-width: 0;
+}
+
+#answer {
+  font-family: var(--font-serif);
+  font-size: clamp(19px, 2.1vw, 22px);
+  line-height: 1.68;
+  color: var(--ink-charcoal);
+  max-width: 64ch;
+}
+
+#answer p {
+  margin: 0 0 1.25em;
+}
+
+#answer > p:first-of-type {
+  font-size: clamp(20px, 2.3vw, 24px);
+  line-height: 1.58;
+  color: var(--ink-charcoal);
+}
+
+#answer h2,
+#answer h3,
+#answer h4 {
+  font-family: var(--font-sans);
+  color: var(--ink-charcoal);
+  letter-spacing: -0.02em;
+  margin: 1.8em 0 0.6em;
+}
+
+#answer h2 {
+  font-weight: 700;
+  font-size: clamp(22px, 2.6vw, 26px);
+  line-height: 1.22;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+#answer h3 {
+  font-weight: 600;
+  font-size: clamp(19px, 2.2vw, 22px);
+  line-height: 1.28;
+}
+
+#answer h4 {
+  font-weight: 600;
+  font-size: 17px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-secondary);
+}
+
+#answer > :first-child {
+  margin-top: 0;
+}
+
+#answer ul,
+#answer ol {
+  margin: 0 0 1.35em;
+  padding-left: 1.35em;
+}
+
+#answer li {
+  margin-bottom: 0.5em;
+  padding-left: 0.25em;
+}
+
+#answer li::marker {
+  color: var(--accent-terracotta);
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+}
+
+#answer strong {
+  font-weight: 600;
+  color: var(--ink-charcoal);
+}
+
+#answer em {
+  font-style: italic;
+}
+
+#answer blockquote {
+  margin: 1.5em 0;
+  padding: 0.25em 0 0.25em 1.25em;
+  border-left: 2px solid var(--accent-terracotta);
+  font-style: italic;
+  color: var(--ink-secondary);
+}
+
+#answer code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  background-color: var(--bg-beige);
+  color: var(--ink-charcoal);
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--rule-light);
+}
+
+#answer pre {
+  margin: 1.4em 0;
+  padding: 18px 20px;
+  background-color: var(--ink-charcoal);
+  color: var(--bg-ivory);
+  border-radius: 10px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+#answer pre code {
+  background: transparent;
+  color: inherit;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+
+#answer hr {
+  border: 0;
+  border-top: 1px solid var(--rule-light);
+  margin: 2em 0;
+}
+
+#answer a {
+  color: var(--accent-terracotta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Error State */
+#answer .err-box {
+  background-color: var(--err-bg);
+  border-left: 3px solid var(--err-crimson);
+  padding: 20px 24px;
+  border-radius: 0 12px 12px 0;
+  font-family: var(--font-sans);
+}
+
+#answer .err-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--err-crimson);
+  margin: 0 0 6px;
+}
+
+#answer .err {
+  color: var(--ink-charcoal);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+#answer .err-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.err-btn {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--rule-strong);
+  background-color: var(--bg-ivory);
+  color: var(--ink-charcoal);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.err-btn:hover {
+  background-color: var(--ink-charcoal);
+  color: var(--bg-ivory);
+  border-color: var(--ink-charcoal);
+}
+
+/* Refined Loading Skeleton */
+.loading-wrap {
+  padding: 6px 0 16px;
+}
+
+.loading-caption {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-stone);
+  margin-bottom: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loading-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--accent-terracotta);
+  animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.sk {
+  height: 15px;
+  border-radius: 4px;
+  margin-bottom: 14px;
+  background: linear-gradient(
+    90deg,
+    var(--bg-beige) 25%,
+    #E0DDD3 50%,
+    var(--bg-beige) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Answer Action Bar */
+.answer-actions {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule-light);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+#copy,
+.action-secondary {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--ink-charcoal);
+  background-color: transparent;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  padding: 10px 18px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease,
+              color 0.2s ease,
+              border-color 0.2s ease,
+              transform 0.15s ease;
+}
+
+#copy[hidden],
+.action-secondary[hidden] {
+  display: none !important;
+}
+
+#copy:hover,
+.action-secondary:hover {
+  background-color: var(--ink-charcoal);
+  color: var(--bg-ivory);
+  border-color: var(--ink-charcoal);
+}
+
+#copy:active,
+.action-secondary:active {
+  transform: scale(0.97);
+}
+
+#copy.copied {
+  background-color: var(--accent-olive);
+  border-color: var(--accent-olive);
+  color: var(--bg-ivory);
+}
+
+#copy svg,
+.action-secondary svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Footer */
+footer.colophon {
+  margin-top: auto;
+  padding: 24px 0 calc(24px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--rule-light);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--ink-stone);
+}
+
+.colophon-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.colophon-prompts button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink-stone);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.colophon-prompts button:hover {
+  color: var(--ink-charcoal);
+  text-decoration-color: var(--accent-terracotta);
+}
+
+.colophon-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.colophon-brand {
+  font-weight: 600;
+  color: var(--ink-charcoal);
+  letter-spacing: -0.01em;
+}
+
+.dev-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-stone);
+}
+
+.dev-credit strong {
+  color: var(--ink-charcoal);
+  font-weight: 500;
+  border-bottom: 1px solid var(--accent-terracotta);
+  padding-bottom: 1px;
+}
+
+.masthead-credit {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-stone);
+  padding-left: 14px;
+  border-left: 1px solid var(--rule-light);
+}
+
+.masthead-credit strong {
+  color: var(--ink-charcoal);
+  font-weight: 500;
+}
+
+/* Entrance Keyframes */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Refinements */
+@media (max-width: 600px) {
+  .brand-sub,
+  .masthead-credit {
+    display: none;
+  }
+  .keyboard-hint {
+    font-size: 12px;
+  }
+  .keyboard-hint .kbd-extra {
+    display: none;
+  }
+  #go {
+    height: 44px;
+    padding: 0 18px;
+    font-size: 14px;
+  }
+  .hints button {
+    padding: 14px 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="page-shell">
+  <header class="masthead">
+    <a href="#q" class="brand" id="brandLink" aria-label="ATHEL AI Home">
+      <span class="brand-mark"><span class="brand-dot"></span>ATHEL AI</span>
+      <span class="brand-sub">Editorial Search Intelligence</span>
+    </a>
+    <div class="masthead-meta">
+      <span class="status-pill">
+        <span class="status-indicator" aria-hidden="true"></span>
+        <span>Search AI</span>
+      </span>
+      <span class="masthead-credit">By <strong>Jagdeep Singh</strong></span>
+    </div>
+  </header>
+
+  <main class="hero">
+    <div class="editorial-kicker">Direct Inquiry</div>
+    <h1 class="hero-headline">What would you like to <em>understand?</em></h1>
+    <p class="hero-subtext">Ask anything. Get thoughtful, clearly structured answers composed for focused reading.</p>
+
+    <form id="f" class="inquiry-form" autocomplete="off">
+      <div class="input-top-bar">
+        <label for="q" class="input-label">Your Question</label>
+        <button type="button" id="clearBtn" class="clear-btn" aria-label="Clear question">Clear</button>
+      </div>
+
+      <textarea
+        id="q"
+        rows="2"
+        enterkeyhint="send"
+        aria-label="Your question"
+        placeholder="Write your question here..."
+      ></textarea>
+
+      <div class="form-footer">
+        <div class="keyboard-hint" aria-hidden="true">
+          <span>Press <kbd class="kbd">Enter ↵</kbd> to ask</span>
+          <span class="kbd-extra">· <kbd class="kbd">Shift + Enter</kbd> for new line</span>
+        </div>
+        <button id="go" type="submit" aria-label="Ask">
+          <span id="goLabel">Inquire</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 17L17 7M9 7h8v8"/>
+          </svg>
+        </button>
+      </div>
+    </form>
+
+    <div class="suggestions-wrap" id="suggestionsWrap">
+      <div class="suggestions-header">
+        <span>Suggested Inquiries</span>
+        <span>Select to explore</span>
+      </div>
+      <div class="hints" id="hints">
+        <button type="button" data-index="01">1+1=3, how is this possible?</button>
+        <button type="button" data-index="02">Explain GST in simple words</button>
+        <button type="button" data-index="03">Why is the sky red at sunset?</button>
+      </div>
+    </div>
+  </main>
+
+  <section id="sheet" hidden aria-live="polite">
+    <div class="sheet-grid">
+      <aside class="sheet-sidebar">
+        <div class="dispatch-meta">
+          <div class="dispatch-tag" id="dispatchStatus">Response</div>
+          <div class="dispatch-stats" id="dispatchStats">Ready</div>
+        </div>
+        <p class="asked-echo" id="askedEcho"></p>
+      </aside>
+
+      <div class="sheet-content">
+        <div id="answer"></div>
+        <div class="answer-actions">
+          <button id="copy" type="button" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span id="copyText">Copy answer</span>
+          </button>
+          <button id="newAsk" type="button" class="action-secondary" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+            <span>New question</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    <div class="colophon-left">
+      <span class="colophon-brand">ATHEL AI — Designed for clarity &amp; depth</span>
+      <span class="dev-credit">Developed &amp; Crafted by <strong>JAGDEEP SINGH</strong></span>
+    </div>
+    <div class="colophon-prompts" id="footerPrompts">
+      <button type="button" data-query="1+1=3, how is this possible?">01. Paradox of 1+1=3</button>
+      <button type="button" data-query="Explain GST in simple words">02. Understanding GST</button>
+      <button type="button" data-query="Why is the sky red at sunset?">03. Atmospheric Optics</button>
+    </div>
+  </footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const q = $('#q'),
+      form = $('#f'),
+      go = $('#go'),
+      goLabel = $('#goLabel'),
+      clearBtn = $('#clearBtn'),
+      sheet = $('#sheet'),
+      answer = $('#answer'),
+      copyBtn = $('#copy'),
+      copyText = $('#copyText'),
+      newAskBtn = $('#newAsk'),
+      hints = $('#hints'),
+      suggestionsWrap = $('#suggestionsWrap'),
+      footerPrompts = $('#footerPrompts'),
+      brandLink = $('#brandLink'),
+      dispatchStatus = $('#dispatchStatus'),
+      dispatchStats = $('#dispatchStats'),
+      askedEcho = $('#askedEcho');
+
+let lastText = '';
+let lastQuery = '';
+
+// Curated editorial fallback samples used ONLY if the user clicks "Preview Editorial Sample"
+// when testing the UI without the /api/ask backend server running.
+const EDITORIAL_SAMPLES = {
+  '1+1=3, how is this possible?': `### The Anatomy of a Mathematical Paradox
+
+In strict arithmetic, **1 + 1 always equals 2**. However, the statement \`1 + 1 = 3\` frequently appears in mathematics, economics, and measurement theory through three distinct mechanisms.
+
+### 1. Hidden Division by Zero (Algebraic Fallacy)
+Many viral proofs begin with a valid identity such as \`a = b\` and manipulate both sides until they divide by \`(a - b)\`. Because \`a - b = 0\`, dividing by that term violates the fundamental rules of algebra—allowing any number to be "proven" equal to any other.
+
+### 2. Rounding and Significant Figures
+In applied measurement, instruments display rounded values while retaining underlying precision:
+- Suppose two measurements are each **1.4 units**.
+- Displayed to the nearest whole number, each reads as \`1\`.
+- Added together before rounding, **1.4 + 1.4 = 2.8**, which rounds to \`3\`.
+- On a rounded ledger, this appears as **1 + 1 = 3**.
+
+### 3. Synergy in Systems Theory
+Outside pure mathematics, Aristotle's principle that *"the whole is greater than the sum of its parts"* is often expressed symbolically as \`1 + 1 = 3\`. In economics and biology, combining two complementary components produces emergent value that neither element possesses in isolation.`,
+
+  'explain gst in simple words': `### Goods and Services Tax (GST), Distilled
+
+**Goods and Services Tax (GST)** is a single, unified indirect tax levied on the supply of goods and services across a country, replacing a complex web of cascading state and central taxes.
+
+### How It Works in Practice
+Instead of paying separate excise duty, service tax, and state VAT at every stage of production, businesses charge one transparent tax based on the value added at each step:
+- **Manufacturer** buys raw materials and pays GST on the purchase.
+- **Wholesaler & Retailer** collect GST on their sales but deduct the GST they already paid earlier in the chain—a mechanism known as **Input Tax Credit (ITC)**.
+- **Final Consumer** pays only the GST printed on the retail invoice, preventing "tax on tax."
+
+### Core Structure in India
+- **CGST (Central GST):** Collected by the Central Government on sales within a single state.
+- **SGST (State GST):** Collected by the State Government on sales within the same state.
+- **IGST (Integrated GST):** Collected on goods and services moving from one state to another.`,
+
+  'why is the sky red at sunset?': `### Rayleigh Scattering and the Long Horizon
+
+Sunlight appears white to the human eye, yet it is a composite spectrum of all visible wavelengths—from short, high-frequency **violet and blue waves** to longer, lower-frequency **orange and red waves**.
+
+### The Geometry of Sunset
+As the sun descends toward the horizon, its light must travel through up to **ten times more Earth's atmosphere** than it does at solar noon.
+
+- **Short Wavelengths Scatter Away:** Nitrogen and oxygen molecules are much smaller than the wavelength of visible light. Through **Rayleigh scattering**, they deflect short blue and violet wavelengths in every direction, stripping them out of the direct sunbeam.
+- **Long Wavelengths Pass Through:** Red, amber, and deep orange wavelengths have longer crests that bypass small atmospheric particles with minimal deflection, reaching your eyes directly.
+- **Aerosols Deepen the Hue:** Dust, sea salt, and fine atmospheric droplets further diffuse the remaining warm light into broad bands of crimson and gold across the western sky.`
+};
+
+function grow() {
+  q.style.height = 'auto';
+  q.style.height = q.scrollHeight + 'px';
+  clearBtn.classList.toggle('visible', q.value.trim().length > 0);
+}
+
+q.addEventListener('input', grow);
+grow();
+
+q.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    form.requestSubmit();
+  }
+});
+
+clearBtn.addEventListener('click', () => {
+  q.value = '';
+  grow();
+  q.focus();
+});
+
+brandLink.addEventListener('click', e => {
+  e.preventDefault();
+  q.focus();
+  window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth' });
+});
+
+const esc = s => s.replace(/[&<>"]/g, c => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;'
+}[c]));
+
+function md(t) {
+  const inline = s => esc(s)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>');
+
+  let out = '';
+  let listType = null;
+  let inCodeBlock = false;
+  let codeBuffer = [];
+
+  for (const raw of t.split('\n')) {
+    const trimmed = raw.trim();
+
+    if (trimmed.startsWith('```')) {
+      if (listType) {
+        out += `</${listType}>`;
+        listType = null;
+      }
+      if (!inCodeBlock) {
+        inCodeBlock = true;
+        codeBuffer = [];
+      } else {
+        out += '<pre><code>' + esc(codeBuffer.join('\n')) + '</code></pre>';
+        inCodeBlock = false;
+      }
+      continue;
+    }
+
+    if (inCodeBlock) {
+      codeBuffer.push(raw);
+      continue;
+    }
+
+    const ulMatch = trimmed.match(/^[-*]\s+(.*)/);
+    const olMatch = trimmed.match(/^\d+\.\s+(.*)/);
+
+    if (ulMatch || olMatch) {
+      const targetType = ulMatch ? 'ul' : 'ol';
+      const content = ulMatch ? ulMatch[1] : olMatch[1];
+      if (listType && listType !== targetType) {
+        out += `</${listType}>`;
+        listType = null;
+      }
+      if (!listType) {
+        out += `<${targetType}>`;
+        listType = targetType;
+      }
+      out += '<li>' + inline(content) + '</li>';
+      continue;
+    }
+
+    if (listType) {
+      out += `</${listType}>`;
+      listType = null;
+    }
+
+    if (!trimmed) continue;
+
+    if (/^---+$/.test(trimmed)) {
+      out += '<hr>';
+      continue;
+    }
+
+    const quoteMatch = trimmed.match(/^>\s*(.*)/);
+    if (quoteMatch) {
+      out += '<blockquote>' + inline(quoteMatch[1]) + '</blockquote>';
+      continue;
+    }
+
+    const hMatch = trimmed.match(/^(#{1,4})\s+(.*)/);
+    if (hMatch) {
+      const level = hMatch[1].length;
+      const tag = level <= 2 ? 'h2' : (level === 3 ? 'h3' : 'h4');
+      out += `<${tag}>` + inline(hMatch[2]) + `</${tag}>`;
+    } else {
+      out += '<p>' + inline(trimmed) + '</p>';
+    }
+  }
+
+  if (inCodeBlock && codeBuffer.length) {
+    out += '<pre><code>' + esc(codeBuffer.join('\n')) + '</code></pre>';
+  }
+  if (listType) {
+    out += `</${listType}>`;
+  }
+  return out;
+}
+
+function updateStats(text, statusLabel) {
+  dispatchStatus.textContent = statusLabel;
+  if (!text) {
+    dispatchStats.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return;
+  }
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const mins = Math.max(1, Math.round(words / 200));
+  dispatchStats.textContent = `${words} words · ${mins} min read`;
+}
+
+function show(html, withCopy, statusLabel = 'Editorial Response') {
+  answer.innerHTML = html;
+  copyBtn.hidden = !withCopy;
+  newAskBtn.hidden = !withCopy;
+  document.body.classList.add('has-answer');
+
+  if (sheet.hidden) {
+    sheet.hidden = false;
+    sheet.classList.add('rise');
+  } else {
+    sheet.classList.remove('rise');
+    void sheet.offsetWidth;
+    sheet.classList.add('rise');
+  }
+
+  updateStats(withCopy ? lastText : '', statusLabel);
+
+  sheet.scrollIntoView({
+    behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth',
+    block: 'start'
+  });
+}
+
+function renderSampleFallback(queryText) {
+  const key = queryText.trim().toLowerCase();
+  const sample = EDITORIAL_SAMPLES[key] || `### Inquiry Overview: ${queryText}
+
+This is an **editorial layout preview** demonstrating how responses from \`/api/ask\` are typeset once your backend server is active.
+
+### Key Architectural Highlights
+- **Typography:** Prose is set in *Newsreader* for comfortable long-form reading, paired with *Bricolage Grotesque* for structural headings.
+- **Hierarchy:** Clear spacing separates lead paragraphs, subheadings, lists, and inline \`code\` tokens.
+- **Live Backend Integration:** When served alongside \`ask.py\`, every submission posts directly to \`/api/ask\` with \`{ "query": "${queryText.replace(/"/g, '')}" }\`.`;
+
+  lastText = sample;
+  show(md(sample), true, 'Editorial Preview');
+}
+
+async function ask(text) {
+  text = text.trim();
+  if (!text) {
+    q.focus();
+    return;
+  }
+  lastQuery = text;
+  q.value = text;
+  grow();
+  q.blur();
+
+  go.disabled = true;
+  goLabel.textContent = 'Inquiring...';
+  askedEcho.textContent = '“' + text + '”';
+
+  show(
+    `<div class="loading-wrap" aria-label="Loading answer">
+      <div class="loading-caption"><span class="loading-pulse"></span>Composing response</div>
+      <div class="sk" style="width:94%"></div>
+      <div class="sk" style="width:82%"></div>
+      <div class="sk" style="width:88%"></div>
+      <div class="sk" style="width:61%"></div>
+    </div>`,
+    false,
+    'Synthesizing'
+  );
+
+  try {
+    const r = await fetch('/api/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: text })
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      throw new Error(d.error || 'Something went wrong (' + r.status + '). Ask again.');
+    }
+    lastText = d.answer || '';
+    show(
+      lastText ? md(lastText) : '<p>No answer came back. Try rephrasing your question.</p>',
+      !!lastText,
+      'Editorial Response'
+    );
+  } catch (e) {
+    const msg = e instanceof TypeError
+      ? 'Could not reach the server. Check your connection and ask again.'
+      : e.message;
+    show(
+      `<div class="err-box">
+        <div class="err-title">Unable to Complete Inquiry</div>
+        <p class="err">${esc(msg)}</p>
+        <div class="err-actions">
+          <button type="button" class="err-btn" id="retryBtn">Try again</button>
+          <button type="button" class="err-btn" id="previewSampleBtn">Preview editorial formatting</button>
+        </div>
+      </div>`,
+      false,
+      'Notice'
+    );
+  } finally {
+    go.disabled = false;
+    goLabel.textContent = 'Inquire';
+    suggestionsWrap.hidden = true;
+  }
+}
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  ask(q.value);
+});
+
+hints.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (btn) ask(btn.textContent);
+});
+
+footerPrompts.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (btn && btn.dataset.query) ask(btn.dataset.query);
+});
+
+answer.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  if (btn.id === 'retryBtn' && lastQuery) {
+    ask(lastQuery);
+  } else if (btn.id === 'previewSampleBtn' && lastQuery) {
+    renderSampleFallback(lastQuery);
+  }
+});
+
+newAskBtn.addEventListener('click', () => {
+  q.value = '';
+  grow();
+  suggestionsWrap.hidden = false;
+  q.focus();
+  window.scrollTo({
+    top: 0,
+    behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth'
+  });
+});
+
+function copyFallback(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  let ok = false;
+  try {
+    ok = document.execCommand('copy');
+  } catch {
+    ok = false;
+  }
+  document.body.removeChild(ta);
+  return ok;
+}
+
+copyBtn.addEventListener('click', async () => {
+  let success = false;
+  try {
+    await navigator.clipboard.writeText(lastText);
+    success = true;
+  } catch {
+    success = copyFallback(lastText);
+  }
+  copyText.textContent = success ? 'Copied' : 'Copy failed';
+  copyBtn.classList.toggle('copied', success);
+  setTimeout(() => {
+    copyText.textContent = 'Copy answer';
+    copyBtn.classList.remove('copied');
+  }, 1500);
+});
+</script>
+</body>
+</html>
