@@ -5,7 +5,7 @@ import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler
 
-URL = "https://api.you.com/v1/answer"
+URL = "https://you.com"
 
 
 class handler(BaseHTTPRequestHandler):
@@ -40,7 +40,12 @@ class handler(BaseHTTPRequestHandler):
         req = urllib.request.Request(
             URL,
             data=json.dumps({"query": query}).encode(),
-            headers={header: prefix + key, "Content-Type": "application/json"},
+            headers={
+                header: prefix + key,
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            },
             method="POST",
         )
 
@@ -54,7 +59,7 @@ class handler(BaseHTTPRequestHandler):
                 msg = "Too many requests. Wait a moment and ask again."
             else:
                 msg = f"You.com returned an error ({e.code})."
-            return self._send(502, {"error": msg + " [" + str(e.code) + ": " + e.read().decode(errors="ignore")[:200] + "]"})
+            return self._send(502, {"error": msg})
         except (socket.timeout, TimeoutError):
             return self._send(504, {"error": "You.com took too long to answer. Ask again."})
         except Exception:
