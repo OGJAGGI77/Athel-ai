@@ -54,7 +54,7 @@ class handler(BaseHTTPRequestHandler):
                 msg = "Too many requests. Wait a moment and ask again."
             else:
                 msg = f"You.com returned an error ({e.code})."
-            return self._send(502, {"error": msg})
+                        return self._send(502, {"error": msg + " [" + str(e.code) + ": " + e.read().decode(errors="ignore")[:200] + "]"})
         except (socket.timeout, TimeoutError):
             return self._send(504, {"error": "You.com took too long to answer. Ask again."})
         except Exception:
