@@ -62,6 +62,8 @@ class handler(BaseHTTPRequestHandler):
             return self._send(502, {"error": msg})
         except (socket.timeout, TimeoutError):
             return self._send(504, {"error": "You.com took too long to answer. Ask again."})
+            
         except Exception as err:
     return self._send(502, {"error": f"Connection error: {type(err).__name__} - {str(err)}"})
+    
         return self._send(200, {"answer": data.get("answer", "")})
