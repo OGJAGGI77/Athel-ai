@@ -5,7 +5,7 @@ import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler
 
-URL = "https://you.com"
+URL = "https://api.you.com/v1/answer"
 
 
 class handler(BaseHTTPRequestHandler):
@@ -27,8 +27,8 @@ class handler(BaseHTTPRequestHandler):
 
         if not query:
             return self._send(400, {"error": "Type a question first."})
-        if len(query) > 1000:
-            return self._send(400, {"error": "Keep the question under 1000 characters."})
+        if len(query) > 400:
+            return self._send(400, {"error": "Keep the question under 400 characters."})
 
         key = os.environ.get("YDC_API_KEY")
         if not key:
@@ -39,12 +39,12 @@ class handler(BaseHTTPRequestHandler):
 
         req = urllib.request.Request(
             URL,
-            data=json.dumps({"query": query, "stream": False}).encode(),
+            data=json.dumps({"query": query}).encode(),
             headers={
                 header: prefix + key.strip(),
                 "Content-Type": "application/json",
                 "Accept": "application/json",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+                "User-Agent": "AthelAI/1.0",
             },
             method="POST",
         )
@@ -54,23 +54,7 @@ class handler(BaseHTTPRequestHandler):
                 raw_text = res.read().decode("utf-8", errors="replace").strip()
                 if not raw_text:
                     return self._send(502, {"error": f"You.com returned an empty response (Status {res.status})."})
-                try:
-                    data = json.loads(raw_text)
-                except json.JSONDecodeError:
-                    # Handle Server-Sent Events (SSE) if You.com streamed chunks anyway
-                    chunks = []
-                    for line in raw_text.splitlines():
-                        if line.startswith("data:"):
-                            part = line[5:].strip()
-                            if part and part != "[DONE]":
-                                try:
-                                    obj = json.loads(part)
-                                    chunks.append(obj.get("answer") or obj.get("text") or obj.get("delta", ""))
-                                except Exception:
-                                    pass
-                    if chunks:
-                        return self._send(200, {"answer": "".join(chunks)})
-                    return self._send(502, {"error": f"Unexpected response from You.com: {raw_text[:200]}"})
+                data = json.loads(raw_text)
         except urllib.error.HTTPError as e:
             err_body = e.read().decode("utf-8", errors="replace")[:150]
             if e.code in (401, 403):
@@ -85,8 +69,4 @@ class handler(BaseHTTPRequestHandler):
         except Exception as err:
             return self._send(502, {"error": f"Connection error: {type(err).__name__} - {str(err)}"})
 
-        answer = data.get("answer") or data.get("output") or data.get("text") or ""
-        if not answer:
-            return self._send(502, {"error": f"No answer field found in JSON: {str(data)[:200]}"})
-
-        return self._send(200, {"answer": answer})
+        return self._send(200, {"answer": data.get("answer", "")})
